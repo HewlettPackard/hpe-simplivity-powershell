@@ -23,7 +23,7 @@ Author = 'Hewlett-Packard Enterprise'
 CompanyName = 'Hewlett-Packard Enterprise'
 
 # Copyright statement for this module
-Copyright = '(c) Copyright 2018-2019 Hewlett Packard Enterprise Development LP. All rights reserved.'
+Copyright = '(c) Copyright 2018-2019 Hewlett Packard Enterprise Development LP'
 
 # Description of the functionality provided by this module
 Description = 'HPE SimpliVity cmdlets perform REST API operations to the HPE SimpliVity system.
@@ -64,10 +64,10 @@ PrivateData = @{
         Tags = @('Hewlett','Packard','Enterprise','HPE','REST','RESTful','Svt','SimpliVity', 'OmniStack')
 
         # A URL to the license for this module.
-        LicenseUri = 'https://github.com/HewlettPackard/hpe-simplivity-powershell/blob/mster/LICENSE'
+        LicenseUri = 'https://github.com/HewlettPackard/hpe-simplivity-powershell/blob/master/LICENSE'
 
         # A URL to the main website for this project.
-        ProjectUri = 'https://hewlettpackard.github.io/hpe-simplivity-powershell'
+        ProjectUri = 'https://github.com/HewlettPackard/hpe-simplivity-powershell'
 
         # A URL to an icon representing this module.
         # IconUri = ''
