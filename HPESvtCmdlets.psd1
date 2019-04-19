@@ -32,6 +32,9 @@ These cmdlets can be used to get and set HPE SimpliVity data and invoke actions 
 # Minimum version of the Windows PowerShell engine required by this module
 PowerShellVersion = '5.1'
 
+# Minimum version of Microsoft .NET Framework required by this module. This prerequisite is valid for the PowerShell Desktop edition only.
+DotNetFrameworkVersion = '4.7.1'
+
 # Compatible PowerShell Editions for this module
 CompatiblePSEditions = 'Desktop', 'Core'
 
@@ -39,6 +42,7 @@ CompatiblePSEditions = 'Desktop', 'Core'
 FunctionsToExport = @('Add-HPESvtCertificate',
                       'Get-HPESvtCertificate',
                       'Get-HPESvtRootCertificate',
+                      'Get-HPESvtTlsCertificate',
                       'Remove-HPESvtCertificate',
                       'Get-HPESvtAuthToken'
                     )
@@ -49,6 +53,7 @@ FileList = @('HPESvtCmdlets.psm1',
              'Public/Add-HPESvtCertificate.ps1',
              'Public/Get-HPESvtCertificate.ps1',
              'Public/Get-HPESvtRootCertificate.ps1',
+             'Public/Get-HPESvtTlsCertificate.ps1',
              'Public/Remove-HPESvtCertificate.ps1',
              'Public/Get-HPESvtAuthToken.ps1',
              'Private/Get-Utils.ps1',

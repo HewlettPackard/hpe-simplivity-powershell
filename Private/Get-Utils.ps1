@@ -5,6 +5,7 @@
 $JSON_HEADER = 'application/vnd.simplivity.v1.10+json'
 $BEGIN_CERTIFICATE = '-----BEGIN CERTIFICATE-----'
 $END_CERTIFICATE = '-----END CERTIFICATE-----'
+$CRED_XML_PATH = Join-Path $HOME HPESvtCertificate.ps1.credential
 
 function SetCredXml {
     param(
@@ -13,18 +14,16 @@ function SetCredXml {
     if (!(Get-IsPowerShellCore)) { #Export/Import-Clixml with encrypted content not supported on PowerShell Core
         $configObject.AccessToken = ConvertTo-SecureString $configObject.AccessToken -AsPlainText -Force
     }
-    $CredXmlPath = Join-Path (Split-Path $PSScriptRoot) HPESvtCertificate.ps1.credential
-    $configObject | Export-Clixml $CredXmlPath -Force
-    return $CredXmlPath
+    $configObject | Export-Clixml $CRED_XML_PATH -Force
+    return $CRED_XML_PATH
 }
 
 function GetCredXml {
-    $CredXmlPath = Join-Path (Split-Path $PSScriptRoot) HPESvtCertificate.ps1.credential
-    if (![System.IO.File]::Exists($CredXmlPath)) {
+    if (![System.IO.File]::Exists($CRED_XML_PATH)) {
         throw "Could not authenticate. Run Get-HPESvtAuthToken to authenticate."
     }
     
-    $configObject = Import-Clixml $CredXmlPath
+    $configObject = Import-Clixml $CRED_XML_PATH
     if (!(Get-IsPowerShellCore)) { #Export/Import-Clixml with encrypted content not supported on PowerShell Core
         $configObject.AccessToken = (New-Object PSCredential "user",$configObject.AccessToken).GetNetworkCredential().Password
     }
@@ -63,6 +62,7 @@ function Get-Header {
     }
 }
 
+
 # Add -SkipCertificateCheck flag if on PowerShell Core. This flag only exists in PowerShell 6.0 or later.
 # There is an alternate way to do this on earlier versions of PowerShell, so just set this for PowerShell Core.
 function Get-SkipCertificateFlag {
@@ -73,8 +73,9 @@ function Get-SkipCertificateFlag {
     $skipCertificateFlag
 }
 
-# Skip certificate checking. For some reason the standard way of disabling certificate checking does not
+# Skip certificate checking for 5.1. For some reason the standard way of disabling certificate checking does not
 # work when connecting to the VmWare HMS, but this snippet of C# does.
+# Force Tls version to 1.2. This fixes a defect when connecting to a system with Tls 1.0 disabled.
 function Skip-CertificateCheck {
 Add-Type @"
     using System;
@@ -98,6 +99,7 @@ Add-Type @"
     }
 "@
     [ServerCertificateValidationCallback]::Ignore();
+    [System.Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 }
 
 # Get X509Certificate2 from base64 encoded string from the server.
@@ -112,4 +114,42 @@ function Get-CertificateFromBase64String {
     $byteArray = [System.Convert]::FromBase64String($base64String)
     $cert = [System.Security.Cryptography.X509Certificates.X509Certificate2]::New($byteArray)
     Write-Output $cert
+}
+
+# see table at https://docs.microsoft.com/en-us/dotnet/framework/migration-guide/how-to-determine-which-versions-are-installed
+function Get-IsRunningNet47 {
+
+    # Core has everything we need for 4.7 interop
+    if (Get-IsPowerShellCore) {
+        return;
+    }
+
+    $running = Get-CheckDotNetVersion -version 460805
+    if ($running -eq $false)
+    {
+        throw "This cmdlet requires .net 4.7"
+    }
+
+}
+
+function Get-CheckDotNetVersion {
+    param(
+        [int] $version
+    )
+
+    try {
+
+        $installed = (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full')
+        if ($version -gt $installed.Release)
+        {
+            return $false
+        }
+
+        return $true
+    }
+    catch {
+        Write-Error "Error while determining .NET version"       
+    }
+
+    return $false        
 }
